@@ -13,14 +13,14 @@ License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2
 add_action( 'wp_ajax_livejournal_xml_importer', 'livejournal_import_xml_ajax_handler' );
 
 function livejournal_import_xml_ajax_handler() {
-	global $lj_api_import;
-	check_ajax_referer( 'lj-api-import' );
+	global $lj_xml_import;
+	check_ajax_referer( 'lj-xml-import' );
 	if ( !current_user_can( 'publish_posts' ) )
 		die('-1');
 	if ( empty( $_POST['step'] ) )
 		die( '-1' );
 	define('WP_IMPORTING', true);
-	$result = $lj_api_import->{ 'step' . ( (int) $_POST['step'] ) }();
+	$result = $lj_xml_import->{ 'step' . ( (int) $_POST['step'] ) }();
 	if ( is_wp_error( $result ) )
 		echo $result->get_error_message();
 	die;
@@ -199,14 +199,14 @@ class LJ_XML_Import extends WP_Importer {
 		?>
 		<div class="narrow">
 		<form action="admin.php?import=livejournal-xml" method="post">
-		<?php wp_nonce_field( 'lj-api-import' ) ?>
+		<?php wp_nonce_field( 'lj-xml-import' ) ?>
 		<?php if ( get_option( 'ljapi_username' ) && get_option( 'ljapi_password' ) ) : ?>
 			<input type="hidden" name="step" value="<?php echo esc_attr( get_option( 'ljapi_step' ) ) ?>" />
 			<p><?php _e( 'It looks like you attempted to import your LiveJournal posts previously and got interrupted.' , 'livejournal-xml-importer') ?></p>
 			<p class="submit">
 				<input type="submit" class="button" value="<?php esc_attr_e( 'Continue previous import' , 'livejournal-xml-importer') ?>" />
 			</p>
-			<p class="submitbox"><a href="<?php echo esc_url($_SERVER['PHP_SELF'] . '?import=livejournal&amp;step=-1&amp;_wpnonce=' . wp_create_nonce( 'lj-api-import' ) . '&amp;_wp_http_referer=' . esc_attr( $_SERVER['REQUEST_URI'] )) ?>" class="deletion submitdelete"><?php _e( 'Cancel &amp; start a new import' , 'livejournal-xml-importer') ?></a></p>
+			<p class="submitbox"><a href="<?php echo esc_url($_SERVER['PHP_SELF'] . '?import=livejournal-xml&amp;step=-1&amp;_wpnonce=' . wp_create_nonce( 'lj-xml-import' ) . '&amp;_wp_http_referer=' . esc_attr( $_SERVER['REQUEST_URI'] )) ?>" class="deletion submitdelete"><?php _e( 'Cancel &amp; start a new import' , 'livejournal-xml-importer') ?></a></p>
 			<p>
 		<?php else : ?>
 			<input type="hidden" name="step" value="1" />
@@ -518,7 +518,7 @@ class LJ_XML_Import extends WP_Importer {
 			case 1 :
 			case 2 :
 			case 3 :
-				check_admin_referer( 'lj-api-import' );
+				check_admin_referer( 'lj-xml-import' );
 				$result = $this->{ 'step' . $step }();
 				if ( is_wp_error( $result ) ) {
 					$this->throw_error( $result, $step );
@@ -557,7 +557,7 @@ class LJ_XML_Import extends WP_Importer {
 		if ( empty( $this->username ) || empty( $this->posts_location ) ) {
 			?>
 			<p><?php _e( 'Please enter your LiveJournal username so we can identify which posts and comments are yours, and select the location of the XML files to import.' , 'livejournal-xml-importer') ?></p>
-			<p><a href="<?php echo esc_url($_SERVER['PHP_SELF'] . '?import=livejournal&amp;step=-1&amp;_wpnonce=' . wp_create_nonce( 'lj-api-import' ) . '&amp;_wp_http_referer=' . esc_attr( str_replace( '&step=1', '', $_SERVER['REQUEST_URI'] ) ) ) ?>"><?php _e( 'Start again' , 'livejournal-xml-importer') ?></a></p>
+			<p><a href="<?php echo esc_url($_SERVER['PHP_SELF'] . '?import=livejournal-xml&amp;step=-1&amp;_wpnonce=' . wp_create_nonce( 'lj-xml-import' ) . '&amp;_wp_http_referer=' . esc_attr( str_replace( '&step=1', '', $_SERVER['REQUEST_URI'] ) ) ) ?>"><?php _e( 'Start again' , 'livejournal-xml-importer') ?></a></p>
 			<?php
 			return false;
 		}
@@ -610,7 +610,7 @@ class LJ_XML_Import extends WP_Importer {
 		if ( get_option( 'ljapi_last_sync_count' ) > 0 ) {
 		?>
 			<form action="admin.php?import=livejournal-xml" method="post" id="ljapi-auto-repost">
-			<?php wp_nonce_field( 'lj-api-import' ) ?>
+			<?php wp_nonce_field( 'lj-xml-import' ) ?>
 			<input type="hidden" name="step" id="step" value="1" />
 			<p><input type="submit" class="button" value="<?php esc_attr_e( 'Import the next batch' , 'livejournal-xml-importer') ?>" /> <span id="auto-message"></span></p>
 			</form>
@@ -716,7 +716,7 @@ class LJ_XML_Import extends WP_Importer {
 	// Returns the HTML for a link to the next page
 	function next_step( $next_step, $label, $id = 'ljapi-next-form' ) {
 		$str  = '<form action="admin.php?import=livejournal-xml" method="post" id="' . $id . '">';
-		$str .= wp_nonce_field( 'lj-api-import', '_wpnonce', true, false );
+		$str .= wp_nonce_field( 'lj-xml-import', '_wpnonce', true, false );
 		$str .= wp_referer_field( false );
 		$str .= '<input type="hidden" name="step" id="step" value="' . esc_attr($next_step) . '" />';
 		$str .= '<p><input type="submit" class="button" value="' . esc_attr( $label ) . '" /> <span id="auto-message"></span></p>';
@@ -774,7 +774,7 @@ class LJ_XML_Import extends WP_Importer {
 						jQuery('#ljapi-status').load(ajaxurl, {'action':'livejournal_importer',
 																'import':'livejournal',
 																'step':jQuery('#step').val(),
-																'_wpnonce':'<?php echo wp_create_nonce( 'lj-api-import' ) ?>',
+																'_wpnonce':'<?php echo wp_create_nonce( 'lj-xml-import' ) ?>',
 																'_wp_http_referer':'<?php echo $_SERVER['REQUEST_URI'] ?>'});
 						return;
 					}
@@ -824,11 +824,11 @@ class LJ_XML_Import extends WP_Importer {
 } // class_exists( 'WP_Importer' )
 
 function livejournal_xml_importer_init() {
-	global $lj_api_import;
+	global $lj_xml_import;
 
 	load_plugin_textdomain( 'livejournal-xml-importer', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' ); 
-	$lj_api_import = new LJ_XML_Import();
+	$lj_xml_import = new LJ_XML_Import();
 
-	register_importer( 'livejournal-xml', __( 'LiveJournal XML' , 'livejournal-xml-importer'), __( 'Import posts from LiveJournal XML files generated using ljdump.' , 'livejournal-xml-importer'), array( $lj_api_import, 'dispatch' ) );
+	register_importer( 'livejournal-xml', __( 'LiveJournal XML' , 'livejournal-xml-importer'), __( 'Import posts from LiveJournal XML files generated using ljdump.' , 'livejournal-xml-importer'), array( $lj_xml_import, 'dispatch' ) );
 }
 add_action( 'init', 'livejournal_xml_importer_init' );
