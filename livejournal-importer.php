@@ -212,7 +212,7 @@ class LJ_XML_Import extends WP_Importer {
 			<input type="hidden" name="step" value="1" />
 			<input type="hidden" name="login" value="true" />
 			<p><?php _e( 'Howdy! This importer allows you to import all your LiveJournal entries and comments directly from the output of <a href="http://hewgill.com/ljdump/">ljdump</a>.' , 'livejournal-xml-importer') ?></p>
-			<p><?php _e( 'Enter your LiveJournal username (so we can properly attribute your comments and posts to you) and the location on the filesystem of the ljdump XML files:' , 'livejournal-xml-importer') ?></p>
+			<p><?php _e( 'Enter your LiveJournal username (so we can properly attribute your comments and posts to you) and the absolute path on the filesystem of the ljdump XML files:' , 'livejournal-xml-importer') ?></p>
 
 			<table class="form-table">
 
@@ -592,7 +592,7 @@ class LJ_XML_Import extends WP_Importer {
 
 		echo '<div id="ljapi-status">';
 		echo '<h3>' . __( 'Importing Posts' , 'livejournal-xml-importer') . '</h3>';
-		echo '<p>' . __( 'We&#8217;re downloading and importing your LiveJournal posts...' , 'livejournal-xml-importer') . '</p>';
+		echo '<p>' . __( 'We&#8217;re loading and importing your LiveJournal posts...' , 'livejournal-xml-importer') . '</p>';
 		if ( get_option( 'ljapi_post_batch' ) && count( get_option( 'ljapi_sync_item_times' ) ) ) {
 			$batch = count( get_option( 'ljapi_sync_item_times' ) );
 			$batch = $batch > 300 ? ceil( $batch / 300 ) : 1;
@@ -617,8 +617,8 @@ class LJ_XML_Import extends WP_Importer {
 			<?php $this->auto_ajax( 'ljapi-auto-repost', 'auto-message' ); ?>
 		<?php
 		} else {
-			echo '<p>' . __( 'Your posts have all been imported, but wait &#8211; there&#8217;s more! Now we need to download &amp; import your comments.' , 'livejournal-xml-importer') . '</p>';
-			echo $this->next_step( 2, __( 'Download my comments &raquo;' , 'livejournal-xml-importer') );
+			echo '<p>' . __( 'Your posts have all been imported, but wait &#8211; there&#8217;s more! Now we need to load &amp; import your comments.' , 'livejournal-xml-importer') . '</p>';
+			echo $this->next_step( 2, __( 'Load my comments &raquo;' , 'livejournal-xml-importer') );
 			$this->auto_submit();
 		}
 		echo '</div>';
@@ -634,8 +634,8 @@ class LJ_XML_Import extends WP_Importer {
 
 
 		echo '<div id="ljapi-status">';
-		echo '<h3>' . __( 'Downloading Comments&#8230;' , 'livejournal-xml-importer') . '</h3>';
-		echo '<p>' . __( 'Now we will download your comments so we can import them (this could take a <strong>long</strong> time if you have lots of comments)...' , 'livejournal-xml-importer') . '</p>';
+		echo '<h3>' . __( 'Loading Comments&#8230;' , 'livejournal-xml-importer') . '</h3>';
+		echo '<p>' . __( 'Now we will load your comments so we can import them...' , 'livejournal-xml-importer') . '</p>';
 		ob_flush(); flush();
 
 		// Download a batch of actual comments
